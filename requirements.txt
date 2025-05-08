@@ -1,0 +1,6 @@
+requests ==2.28.1
+pandas 
+tqdm
+urllib3 ==1.26.15
+openpyxl
+dotenv
