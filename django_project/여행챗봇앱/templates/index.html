@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>여행지 추천 챗봇</title>
+    <style>
+        body {
+            font-family: 'Arial', '맑은 고딕', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 20px;
+            width: 90vw;
+            height: 90vh;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+        }
+        .chat-section {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-title {
+            font-size: 2.5em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .chat-container {
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        .user-message, .chatbot-message {
+            display: inline-block;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin: 5px 0;
+            max-width: 80%;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 1em;
+        }
+        .user-message {
+            background-color: #3498db;
+            color: white;
+            float: right;
+            clear: both;
+        }
+        .user-message::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            right: -10px;
+            border-top: 10px solid transparent;
+            border-left: 10px solid #3498db;
+            border-bottom: 10px solid transparent;
+        }
+        .chatbot-message {
+            background-color: #dff9fb;
+            color: #333;
+            float: left;
+            clear: both;
+        }
+        .chatbot-message::before {
+            content: "";
+            position: absolute;
+            top: 10px;
+            left: -10px;
+            border-top: 10px solid transparent;
+            border-right: 10px solid #dff9fb;
+            border-bottom: 10px solid transparent;
+        }
+        .chatbot-avatar {
+            font-size: 1.2em;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+        .typing {
+            display: inline-block;
+            font-style: italic;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .filter-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        select, input[type="text"], button {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-section">
+            <div class="chat-title">🏝 서울 지역 추천 챗봇 😎</div>
+            <div class="chat-container" id="chat-box">
+                {% for q, a in chat_history %}
+                    <div class="user-message">{{ q }}</div><br>
+                    <div class="chatbot-message"><span class="chatbot-avatar">🤖</span> {{ a|safe }}</div><br>
+                {% endfor %}
+
+                {% if typing %}
+                    <div class="chatbot-message"><span class="chatbot-avatar">🤖</span> <span class="typing">답변 작성 중...</span></div><br>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <form method="POST">
+                {% csrf_token %}
+                <label>🌍 지역:</label>
+                <select name="region">
+                    <option value="서울" {% if region == "서울" %}selected{% endif %}>서울</option>
+                    <option value="부산" {% if region == "부산" %}selected{% endif %}>부산</option>
+                </select>
+
+                <label>🗂 카테고리:</label>
+                <select name="category">
+                    <option value="쇼핑" {% if category == "쇼핑" %}selected{% endif %}>쇼핑</option>
+                    <option value="카페" {% if category == "카페" %}selected{% endif %}>카페</option>
+                    <option value="볼거리" {% if category == "볼거리" %}selected{% endif %}>볼거리</option>
+                </select>
+
+                <input type="text" name="question" placeholder="예: 서울에서 볼거리 추천해줘!" required>
+                <button type="submit">🤔 질문하기</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        var chatBox = document.getElementById("chat-box");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    </script>
+</body>
+</html>
