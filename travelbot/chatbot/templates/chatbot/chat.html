@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>여행지 챗봇</title>
+</head>
+<body>
+    <h1>여행지 챗봇</h1>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="question" placeholder="여행지 관련 질문을 입력하세요">
+        <button type="submit">검색</button>
+    </form>
+    {% if answers %}
+    <h3>답변:</h3>
+    <ul>
+        {% for a in answers %}
+            <li>{{ a }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>답변이 아직 없습니다.</p>
+{% endif %}
+
+</body>
+</html>
