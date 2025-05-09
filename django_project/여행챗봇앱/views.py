@@ -5,14 +5,16 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from django.conf import settings
+from .tripadvisor_3_reviews import fetch_top3_reviews
 
 # 🔥 chroma_db 경로 → 프로젝트 루트 기준
 chroma_db_path = os.path.join(settings.BASE_DIR.parent, "chroma_db")
 
 print("🔥 지금 연결된 ChromaDB 경로:", chroma_db_path)
 
-# .env 파일 로드
-load_dotenv(dotenv_path=os.path.join(settings.BASE_DIR.parent, ".env"))
+# .env 파일 로드 (프로젝트 루트 기준 상대경로)
+env_path = os.path.join(settings.BASE_DIR, "..", ".env")
+load_dotenv(dotenv_path=os.path.abspath(env_path))
 
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
@@ -22,6 +24,23 @@ chroma_client = chromadb.PersistentClient(path=chroma_db_path)
 collection = chroma_client.get_or_create_collection(name="places")
 
 model = SentenceTransformer("intfloat/e5-large-v2")
+
+def summarize_place_and_reviews(place_name, place_desc, reviews, openai_client):
+    joined_reviews = " ".join(reviews)
+    prompt = (
+        f"다음은 여행지 '{place_name}'에 대한 설명과 실제 방문자 리뷰입니다. "
+        f"설명과 리뷰를 모두 참고하여, 핵심만 간결하게 한글로 요약해 주세요.\n\n"
+        f"[장소 설명]\n{place_desc}\n\n[리뷰]\n{joined_reviews}\n\n요약:")
+    response = openai_client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "당신은 여행지 정보 요약 전문가입니다."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300,
+        temperature=0.5,
+    )
+    return response.choices[0].message.content.strip()
 
 def chatbot_view(request):
     answer = ""
@@ -57,7 +76,7 @@ def chatbot_view(request):
 
         results = collection.query(
             query_embeddings=query_embedding,
-            n_results=10,
+            n_results=5,
             where=filters
         )
 
@@ -67,52 +86,34 @@ def chatbot_view(request):
         print("검색된 장소 개수:", len(documents))
 
         if documents:
-            places_info = ""
+            summaries = []
+            unique_places = {}
             for doc, meta in zip(documents, metadatas):
-                places_info += f"장소명: {meta['name']}<br>카테고리: {meta['category']}<br>지역: {meta['region']}<br>설명: {doc}<br><br>"
+                place_name = meta['name']
+                if place_name not in unique_places:
+                    unique_places[place_name] = (doc, meta)
 
-            prompt = f"""
-            너는 사용자에게 여행지 장소를 추천하는 친근한 챗봇이야.
+            for place_name, (doc, meta) in list(unique_places.items())[:3]:  # 최대 3개만
+                place_desc = doc
+                try:
+                    reviews = fetch_top3_reviews(place_name, os.getenv("TRIPADVISOR_API_KEY"))
+                except Exception as e:
+                    reviews = []
+                    print(f"Tripadvisor 리뷰 가져오기 실패: {e}")
 
-            사용자가 다음과 같은 질문을 했어:
-            "{user_question}"
+                if reviews:
+                    try:
+                        summary = summarize_place_and_reviews(place_name, place_desc, reviews, client)
+                    except Exception as e:
+                        summary = f"요약 실패: {e}"
+                else:
+                    summary = f"{place_desc}<br><br>(리뷰를 가져올 수 없습니다.)"
 
-            사용자가 선택한 필터:
-            - 지역: {region}
-            - 카테고리: {category}
+                summaries.append(
+                    f"<b>{place_name}</b><br>{summary}<br><br>"
+                )
 
-            아래 장소 목록을 참고해서, **사용자의 질문에서 원하는 추천 개수가 있다면 그 개수만큼**, 없다면 **의미적으로 적합한 소수의 장소(3~5개 이내)**만 골라서 설명해줘.
-            만약 추천할 장소가 너무 많아지면, "추천은 많아도 부담은 적게!" 라는 멘트도 추가해줘.
-            
-            **카테고리에 따라 말투를 다르게 해줘**:
-            - 쇼핑 → 친구한테 소개하듯이 신나고 활발하게.
-            - 카페 → 감성적이고 부드러운 말투로.
-            - 문화시설 → 흥미롭고 재미있는 느낌으로, 가벼운 농담도 넣어줘.
-
-            **출력 형식**:
-            - 장소마다 **제목(굵게)** + **1~2문단 설명**.
-            - 장소마다 **줄바꿈을 <br> 태그로 처리**해서 HTML에서도 보기 좋게.
-            - 너무 긴 설명은 피하고, 가독성 좋게.
-
-            장소 목록:<br><br>
-            {places_info}
-            """
-
-            response = client.chat.completions.create(
-                model="gpt-4o",
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
-            )
-
-            print("GPT 응답:", response)
-
-            answer = response.choices[0].message.content
-            answer = answer.replace("1.", "<br><br>🛍 1.").replace("2.", "<br><br>🛍 2.").replace("3.", "<br><br>🛍 3.").replace("4.", "<br><br>🛍 4.")
-
-            # 추가 줄바꿈 처리 (혹시 GPT가 <br> 빼먹었을 경우 대비)
-            answer = answer.replace("\n\n", "<br><br>").replace("\n", "<br>")
-
+            answer = "<hr>".join(summaries)
         else:
             answer = "조건에 맞는 장소를 찾을 수 없습니다."
 

@@ -5,7 +5,10 @@ from typing import List, Optional
 from dotenv import load_dotenv
 
 # ====== 환경변수 로드 ======
-load_dotenv()  # .env 파일에서 환경변수 읽기
+# 프로젝트 루트 기준 상대경로로 .env 파일 로드
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+env_path = os.path.join(BASE_DIR, '..', '.env')
+load_dotenv(dotenv_path=os.path.abspath(env_path))
 
 # ====== 1. 트립어드바이저 리뷰 3개 가져오기 ======
 def fetch_top3_reviews(place_name: str, api_key: str) -> List[str]:
