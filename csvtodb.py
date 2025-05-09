@@ -3,8 +3,12 @@ import re
 from sentence_transformers import SentenceTransformer
 import chromadb
 
-# 🔥 CSV 불러오기
-df = pd.read_csv("서울_쇼핑_정리본.csv")
+### ✅ 새로 넣을 CSV 파일명 & 소스 이름만 바꾸면 됨!!
+csv_file = "data/서울_문화시설_정리본.csv"
+source_name = "서울문화시설1"   # 파일이나 데이터 구분하는 이름!
+
+### 🔥 데이터 불러오기
+df = pd.read_csv(csv_file)
 
 df['내용'] = df['개요'].fillna('') + " " + df['상세정보'].fillna('')
 
@@ -18,31 +22,23 @@ def clean_text(text):
 
 df['내용'] = df['내용'].apply(clean_text)
 
-# 🔥 e5-large-v2 모델 불러오기
+### 🔥 e5-large-v2 모델 준비
 model = SentenceTransformer("intfloat/e5-large-v2")
 
-# 🔥 장소 설명 임베딩 (e5 형식 → "passage: ..." 로 해야 성능 극대화!)
 texts = df['내용'].tolist()
 embeddings = model.encode(
     ["passage: " + text for text in texts],
     show_progress_bar=True
 )
 
-# 🔥 ChromaDB 연결
+### 🔥 ChromaDB 연결
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 collection = chroma_client.get_or_create_collection(name="places")
 
-# 🔥 기존 데이터 있으면 삭제 (중복 방지!)
-try:
-    chroma_client.delete_collection("places")
-    collection = chroma_client.get_or_create_collection(name="places")
-except:
-    pass
-
-# 🔥 데이터 추가
+### 🔥 데이터 추가 (기존 데이터 유지됨!!)
 for idx, row in df.iterrows():
     collection.add(
-        ids=[str(row['명칭']) + "_" + str(idx)],
+        ids=[f"{source_name}_{row['명칭']}_{idx}"],  # source_name 붙여서 중복 방지!
         embeddings=[embeddings[idx]],
         documents=[row['내용']],
         metadatas=[{
@@ -56,4 +52,5 @@ for idx, row in df.iterrows():
         }]
     )
 
-print("✅ e5 임베딩 완료 & ChromaDB 저장 완료!")
+print(f"✅ {csv_file} 데이터 임베딩 & ChromaDB 추가 완료!")
+print("총 데이터 개수:", collection.count())

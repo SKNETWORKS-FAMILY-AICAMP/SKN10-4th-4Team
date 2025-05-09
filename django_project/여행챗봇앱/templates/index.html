@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>여행지 추천 챗봇</title>
     <style>
+        @import url('https://cdn.jsdelivr.net/gh/webfontworld/gmarket/GmarketSans.css');
+
         body {
-            font-family: 'Arial', '맑은 고딕', sans-serif;
+            font-family: 'GmarketSansMedium', 'Arial', '맑은 고딕', sans-serif;
             background-color: #f0f8ff;
             color: #333;
             height: 100vh;
@@ -51,7 +53,7 @@
             max-width: 80%;
             position: relative;
             word-wrap: break-word;
-            font-size: 1em;
+            font-size: 1.1em;
         }
         .user-message {
             background-color: #3498db;
@@ -99,6 +101,22 @@
             100% { opacity: 1; }
         }
 
+        /* 🔥 로딩 애니메이션 */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .filter-section {
             flex: 1;
             display: flex;
@@ -109,10 +127,11 @@
             padding: 10px;
         }
         select, input[type="text"], button {
-            padding: 10px;
-            font-size: 1em;
-            border-radius: 5px;
+            padding: 15px;
+            font-size: 1.2em;
+            border-radius: 8px;
             border: 1px solid #ccc;
+            width: 100%;
         }
         button {
             background-color: #3498db;
@@ -127,7 +146,7 @@
 <body>
     <div class="container">
         <div class="chat-section">
-            <div class="chat-title">🏝 서울 지역 추천 챗봇 😎</div>
+            <div class="chat-title">🏝 물어봐! 서울 가보고 싶은데 있어?? 😎</div>
             <div class="chat-container" id="chat-box">
                 {% for q, a in chat_history %}
                     <div class="user-message">{{ q }}</div><br>
@@ -135,7 +154,10 @@
                 {% endfor %}
 
                 {% if typing %}
-                    <div class="chatbot-message"><span class="chatbot-avatar">🤖</span> <span class="typing">답변 작성 중...</span></div><br>
+                    <div class="chatbot-message">
+                        <span class="chatbot-avatar">🤖</span> 추천할 장소를 찾고 있어요! 
+                        <span class="loader"></span>
+                    </div><br>
                 {% endif %}
             </div>
         </div>
@@ -153,7 +175,7 @@
                 <select name="category">
                     <option value="쇼핑" {% if category == "쇼핑" %}selected{% endif %}>쇼핑</option>
                     <option value="카페" {% if category == "카페" %}selected{% endif %}>카페</option>
-                    <option value="볼거리" {% if category == "볼거리" %}selected{% endif %}>볼거리</option>
+                    <option value="문화시설" {% if category == "문화시설" %}selected{% endif %}>문화시설</option>
                 </select>
 
                 <input type="text" name="question" placeholder="예: 서울에서 볼거리 추천해줘!" required>
