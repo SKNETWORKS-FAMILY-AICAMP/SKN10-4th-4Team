@@ -56,9 +56,11 @@
             padding: 14px 20px;
             border-radius: 18px;
             margin: 12px 0;
-            max-width: 80%;
+            min-width: 80px;
+            width: fit-content;
             position: relative;
             word-break: break-word;
+            white-space: pre-line;
             font-size: 1.13em;
             box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             line-height: 1.7;
@@ -68,6 +70,7 @@
             color: #fff;
             margin-left: auto;
             text-align: right;
+            max-width: 40%;
         }
         .user-message::after {
             content: "";
@@ -83,6 +86,7 @@
             color: #222;
             margin-right: auto;
             text-align: left;
+            max-width: 80%;
         }
         .chatbot-message::before {
             content: "";
@@ -172,6 +176,8 @@
         @media (max-width: 700px) {
             .container { flex-direction: column; padding: 4vw 2vw; }
             .filter-section { max-width: 100%; min-width: 0; }
+            .user-message { max-width: 80%; }
+            .chatbot-message { max-width: 100%; }
         }
         /* 입력창 고정 */
         .chat-section { position: relative; }
