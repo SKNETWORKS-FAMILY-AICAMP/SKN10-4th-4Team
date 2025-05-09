@@ -16,9 +16,9 @@ print(collection.peek())
 print("===================================")
 
 # 🔥 사용자 질문 & 필터
-user_question = "쇼핑몰 추천해줘"
+user_question = "서울의 쇼핑몰 추천해줘"
 region_filter = "서울특별시"
-category_filter = "쇼핑"
+category_filter = "문화시설"
 
 # 🔥 질문 임베딩 (e5 형식 → "query: ..." 로 해야 성능 최고!)
 query_embedding = model.encode(["query: " + user_question])
@@ -27,7 +27,10 @@ query_embedding = model.encode(["query: " + user_question])
 # 🔥 필터 제거 → 의미 비슷한 장소 n_results 가져오기
 results = collection.query(
     query_embeddings=query_embedding,
-    n_results=10
+    n_results=5,
+    where = {
+        "category": category_filter
+    }
 )
 
 # 🔥 결과 출력

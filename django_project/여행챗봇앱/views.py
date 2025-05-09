@@ -51,9 +51,14 @@ def chatbot_view(request):
 
         query_embedding = model.encode(["query: " + user_question])
 
+        filters = {}
+        if category:
+            filters["category"] = category
+
         results = collection.query(
             query_embeddings=query_embedding,
-            n_results=10
+            n_results=10,
+            where=filters
         )
 
         documents = results['documents'][0] if results['documents'][0] else []
@@ -76,12 +81,13 @@ def chatbot_view(request):
             - 지역: {region}
             - 카테고리: {category}
 
-            아래 장소 목록을 참고해서, 의미적으로 맞는 곳만 골라서 설명해줘.
-
+            아래 장소 목록을 참고해서, **사용자의 질문에서 원하는 추천 개수가 있다면 그 개수만큼**, 없다면 **의미적으로 적합한 소수의 장소(3~5개 이내)**만 골라서 설명해줘.
+            만약 추천할 장소가 너무 많아지면, "추천은 많아도 부담은 적게!" 라는 멘트도 추가해줘.
+            
             **카테고리에 따라 말투를 다르게 해줘**:
             - 쇼핑 → 친구한테 소개하듯이 신나고 활발하게.
             - 카페 → 감성적이고 부드러운 말투로.
-            - 볼거리 → 흥미롭고 재미있는 느낌으로, 가벼운 농담도 넣어줘.
+            - 문화시설 → 흥미롭고 재미있는 느낌으로, 가벼운 농담도 넣어줘.
 
             **출력 형식**:
             - 장소마다 **제목(굵게)** + **1~2문단 설명**.
