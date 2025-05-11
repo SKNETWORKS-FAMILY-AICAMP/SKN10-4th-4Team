@@ -28,7 +28,7 @@ def chatbot_view(request):
                 sorted_results = sorted(result["results"], key=lambda r: r.get("score", 0), reverse=True)
                 wanted_results = [
                     r for r in sorted_results
-                    if "naver.com" or "tistory.com" in r.get("url", "") and r.get("score", 0) >= 0.2
+                    if "site:blog.naver.com" or "site:tistory.com" or "site:tripadvisor.co.kr" in r.get("url", "") and r.get("score", 0) >= 0.2
                 ][:5]
 
                 for res in wanted_results:
