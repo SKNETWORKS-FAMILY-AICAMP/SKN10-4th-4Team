@@ -29,6 +29,7 @@ title: SKN10-4rd-4Team 발표
 | ![](image/신정우.png) | ![](image/이태수.png) | ![](image/조현정.png) | ![](image/남궁승원.png) | ![](image/이유호.png) |
 
 ---
+<img src="image/4차단위.drawio.png" alt="4차단위" width="750" style="display:block; margin:0 auto;" />
 
 ## 3. 수집된 데이터 및 데이터 전처리
 
@@ -49,11 +50,11 @@ title: SKN10-4rd-4Team 발표
 - ChromaDB 저장 시 메타데이터로 지역, 카테고리, 운영시간 등 포함
 
 <img src="image/5.png" alt="챗봇 시연 이미지5" width="750" style="display:block; margin:0 auto;" />
-<img src="image/4.png" alt="챗봇 시연 이미지4" width="750" style="display:block; margin:0 auto;" />
+<img src="image/6.png" alt="챗봇 시연 이미지6" width="750" style="display:block; margin:0 auto;" />
 
 ---
 
-<img src="image/4차단위.drawio.png" alt="4차단위" width="750" style="display:block; margin:0 auto;" />
+
 
 ## 4. 시스템 아키텍처
 
