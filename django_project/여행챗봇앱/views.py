@@ -5,6 +5,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 from django.conf import settings
+from .tripadvisor_3_reviews import fetch_top3_reviews, summarize_reviews_openai
 
 # 🔥 chroma_db 경로 → 프로젝트 루트 기준
 chroma_db_path = os.path.join(settings.BASE_DIR.parent, "chroma_db")
@@ -22,6 +23,25 @@ chroma_client = chromadb.PersistentClient(path=chroma_db_path)
 collection = chroma_client.get_or_create_collection(name="places")
 
 model = SentenceTransformer("intfloat/e5-large-v2")
+
+def summarize_place_and_reviews(place_name, place_desc, reviews, openai_client):
+    joined_reviews = "\n".join(reviews)
+    prompt = (
+        f"다음은 여행지 '{place_name}'에 대한 설명과 실제 방문자 리뷰입니다.\n\n"
+        f"[장소 설명]\n{place_desc}\n\n"
+        f"[리뷰]\n{joined_reviews}\n\n"
+        f"설명과 리뷰를 모두 참고해서 핵심만 간결하게 한글로 요약해줘."
+    )
+    response = openai_client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "당신은 여행지 정보 요약 전문가입니다."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300,
+        temperature=0.5,
+    )
+    return response.choices[0].message.content.strip()
 
 def is_recommendation_request(question):
     check_prompt = f"""
@@ -124,9 +144,36 @@ def chatbot_view(request):
 
             print("검색된 장소 개수:", len(documents))
 
+            
             if documents:
+                unique_places = {}
                 for doc, meta in zip(documents, metadatas):
-                    places_info += f"장소명: {meta['name']}<br>카테고리: {meta['category']}<br>지역: {meta['region']}<br>설명: {doc}<br><br>"
+                    place_name = meta['name']
+                    if place_name not in unique_places:
+                        unique_places[place_name] = (doc, meta)
+
+                for place_name, (doc, meta) in list(unique_places.items())[:5]:  # 최대 5개까지만
+                    review_text = ""
+
+                    try:
+                        trip_reviews = fetch_top3_reviews(place_name, os.getenv("TRIPADVISOR_API_KEY"))
+
+                        # ✅ 내부 설명과 리뷰를 함께 GPT에 전달해 요약
+                        review_summary = summarize_place_and_reviews(
+                            place_name, doc, trip_reviews, client
+                        )
+
+                        review_text = f"🌍 요약: {review_summary}"
+                    except Exception as e:
+                        print(f"리뷰 요약 실패 - {place_name}: {e}")
+                        review_text = f"설명: {doc}<br>🌍 리뷰 요약: (리뷰 정보 없음)"
+
+                    places_info += (
+                        f"장소명: {place_name}<br>"
+                        f"카테고리: {meta['category']}<br>"
+                        f"지역: {meta['region']}<br>"
+                        f"{review_text}<br><br>"
+                    )
 
                 if is_recommend:
                     request.session["last_places_info"] = places_info
