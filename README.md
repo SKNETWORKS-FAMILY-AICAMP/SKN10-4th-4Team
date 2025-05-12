@@ -48,6 +48,9 @@ title: SKN10-4rd-4Team 발표
 
 - ChromaDB 저장 시 메타데이터로 지역, 카테고리, 운영시간 등 포함
 
+<img src="image/5.png" alt="챗봇 시연 이미지4" width="750" style="display:block; margin:0 auto;" />
+<img src="image/6.png" alt="챗봇 시연 이미지4" width="750" style="display:block; margin:0 auto;" />
+
 ---
 
 ## 4. 시스템 아키텍처
