@@ -115,6 +115,14 @@ title: SKN10-4rd-4Team 발표
 
 ---
 
+## 8.1 작동화면
+<img src="image/1.png" alt="챗봇 시연 이미지1" width="750" style="display:block; margin:0 auto;" />
+<img src="image/1.png" alt="챗봇 시연 이미지2" width="750" style="display:block; margin:0 auto;" />
+<img src="image/1.png" alt="챗봇 시연 이미지3" width="750" style="display:block; margin:0 auto;" />
+<img src="image/1.png" alt="챗봇 시연 이미지4" width="750" style="display:block; margin:0 auto;" />
+
+---
+
 ## 9. 개발과정중 발생 문제 & 해결방법
 
 - **신정우** : 챗봇과의 질의 응답에서 장소를 추천받은다음, 추천받은 장소에 대한 질의응답을 구현하려 했지만, 사용자의 질문을 전부 새로운 질문으로 판단하여 매번 다른 지역을 추천하는 문제가 있었습니다. 따라서 사용자의 질문이 새로운 지역에 대한 추천요구인지, 혹은 이전 지역에 대한 부가적인 정보 요구인지 구별하는 로직과 프롬프트를 추가하여 해당 문제를 해결하였습니다.
