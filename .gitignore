@@ -1,6 +1,7 @@
 .venv
 .vscode
 scripts
+chroma_db2/
 # Created by https://www.toptal.com/developers/gitignore/api/python,venv,django
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,venv,django
 
