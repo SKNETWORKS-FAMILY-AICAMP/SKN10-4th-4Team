@@ -117,9 +117,9 @@ title: SKN10-4rd-4Team 발표
 
 ## 8.1 작동화면
 <img src="image/1.png" alt="챗봇 시연 이미지1" width="750" style="display:block; margin:0 auto;" />
-<img src="image/1.png" alt="챗봇 시연 이미지2" width="750" style="display:block; margin:0 auto;" />
-<img src="image/1.png" alt="챗봇 시연 이미지3" width="750" style="display:block; margin:0 auto;" />
-<img src="image/1.png" alt="챗봇 시연 이미지4" width="750" style="display:block; margin:0 auto;" />
+<img src="image/2.png" alt="챗봇 시연 이미지2" width="750" style="display:block; margin:0 auto;" />
+<img src="image/3.png" alt="챗봇 시연 이미지3" width="750" style="display:block; margin:0 auto;" />
+<img src="image/4.png" alt="챗봇 시연 이미지4" width="750" style="display:block; margin:0 auto;" />
 
 ---
 
