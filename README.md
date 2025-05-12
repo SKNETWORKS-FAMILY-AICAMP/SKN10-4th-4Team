@@ -53,7 +53,7 @@ title: SKN10-4rd-4Team 발표
 
 ---
 
-<img src="image/4차단위.drawio.png" alt="챗봇 시연 이미지4" width="750" style="display:block; margin:0 auto;" />
+<img src="image/4차단위.drawio.png" alt="4차단위" width="750" style="display:block; margin:0 auto;" />
 
 ## 4. 시스템 아키텍처
 
