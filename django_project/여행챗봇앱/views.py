@@ -74,11 +74,15 @@ def chatbot_view(request):
         if category:
             filters["category"] = category
 
-        results = collection.query(
-            query_embeddings=query_embedding,
-            n_results=5,
-            where=filters
-        )
+        query_params = {
+            "query_embeddings": query_embedding,
+            "n_results": 5,
+        }
+        
+        if filters:
+            query_params["where"] = filters
+
+        results = collection.query(**query_params)
 
         documents = results['documents'][0] if results['documents'][0] else []
         metadatas = results['metadatas'][0] if results['metadatas'][0] else []

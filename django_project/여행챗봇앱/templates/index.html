@@ -192,8 +192,8 @@
             gap: 10px;
             align-items: center;
         }
-        form label, .filter-section label { margin-bottom: 0; }
-        form select, form input[type="text"] {
+        form label { margin-bottom: 0; }
+        form input[type="text"] {
             margin-bottom: 0;
             flex: 1;
         }
@@ -219,15 +219,6 @@
             </div>
             <form method="POST">
                 {% csrf_token %}
-                <select name="region">
-                    <option value="서울" {% if region == "서울" %}selected{% endif %}>서울</option>
-                    <option value="부산" {% if region == "부산" %}selected{% endif %}>부산</option>
-                </select>
-                <select name="category">
-                    <option value="쇼핑" {% if category == "쇼핑" %}selected{% endif %}>쇼핑</option>
-                    <option value="카페" {% if category == "카페" %}selected{% endif %}>카페</option>
-                    <option value="문화시설" {% if category == "문화시설" %}selected{% endif %}>문화시설</option>
-                </select>
                 <input type="text" name="question" placeholder="예: 서울에서 볼거리 추천해줘!" required>
                 <button type="submit">질문하기</button>
             </form>
