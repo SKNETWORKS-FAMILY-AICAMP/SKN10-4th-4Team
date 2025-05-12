@@ -8,7 +8,7 @@ from django.conf import settings
 from .tripadvisor_3_reviews import fetch_top3_reviews, summarize_reviews_openai
 
 # 🔥 chroma_db 경로 → 프로젝트 루트 기준
-chroma_db_path = os.path.join(settings.BASE_DIR.parent, "chroma_db")
+chroma_db_path = os.path.join(settings.BASE_DIR.parent, "chroma_db2")
 
 print("🔥 지금 연결된 ChromaDB 경로:", chroma_db_path)
 
@@ -85,9 +85,14 @@ def is_follow_up_question(question, chat_history):
 
 
 def chatbot_view(request):
+    # ChromaDB에서 지역과 카테고리 목록 뽑기
+    all_places = collection.get(include=["metadatas"])
+    all_locations = sorted(set(meta["location"] for meta in all_places["metadatas"] if "location" in meta))
+    all_categories = sorted(set(meta["category"] for meta in all_places["metadatas"] if "category" in meta))
+
     answer = ""
     user_question = ""
-    region = ""
+    location = ""
     category = ""
 
     # ⭐ 서버 새로 시작할 때마다 세션 초기화!
@@ -101,11 +106,11 @@ def chatbot_view(request):
 
     if request.method == "POST":
         user_question = request.POST.get("question")
-        region = request.POST.get("region")
+        location = request.POST.get("location")
         category = request.POST.get("category")
 
         print("사용자 질문:", user_question)
-        print("선택한 지역:", region)
+        print("선택한 지역:", location)
         print("선택한 카테고리:", category)
 
         typing = True
@@ -152,26 +157,20 @@ def chatbot_view(request):
                     if place_name not in unique_places:
                         unique_places[place_name] = (doc, meta)
 
-                for place_name, (doc, meta) in list(unique_places.items())[:5]:  # 최대 5개까지만
+                for place_name, (doc, meta) in list(unique_places.items())[:5]:
                     review_text = ""
-
                     try:
                         trip_reviews = fetch_top3_reviews(place_name, os.getenv("TRIPADVISOR_API_KEY"))
-
-                        # ✅ 내부 설명과 리뷰를 함께 GPT에 전달해 요약
-                        review_summary = summarize_place_and_reviews(
-                            place_name, doc, trip_reviews, client
-                        )
-
+                        review_summary = summarize_place_and_reviews(place_name, doc, trip_reviews, client)
                         review_text = f"🌍 요약: {review_summary}"
                     except Exception as e:
                         print(f"리뷰 요약 실패 - {place_name}: {e}")
-                        review_text = f"설명: {doc}<br>🌍 리뷰 요약: (리뷰 정보 없음)"
+                        review_text = f"설명: {doc}<br>🌍 리뷰 요약: (리뷰 정보 없음)"  # ✅ 요약 실패해도 설명만으로 출력!
 
                     places_info += (
                         f"장소명: {place_name}<br>"
                         f"카테고리: {meta['category']}<br>"
-                        f"지역: {meta['region']}<br>"
+                        f"지역: {meta['location']}<br>"
                         f"{review_text}<br><br>"
                     )
 
@@ -186,7 +185,7 @@ def chatbot_view(request):
                 return render(request, "index.html", {
                     "answer": answer,
                     "user_question": user_question,
-                    "region": region,
+                    "location": location,
                     "category": category,
                     "chat_history": chat_history,
                     "typing": typing
@@ -226,7 +225,7 @@ def chatbot_view(request):
         → 그러니까 꼭 이전 대화 내용을 참고해서 답변해줘!
 
         사용자가 설정한 조건:
-        - 지역: {region}
+        - 지역: {location}
         - 카테고리: {category}
 
         아래는 추천에 참고할 수 있는 장소 목록이야:
@@ -269,8 +268,10 @@ def chatbot_view(request):
     return render(request, "index.html", {
         "answer": answer,
         "user_question": user_question,
-        "region": region,
+        "location": location,
         "category": category,
         "chat_history": chat_history,
-        "typing": typing
+        "typing": typing,
+        "location_list": all_locations,
+        "category_list": all_categories,
     })

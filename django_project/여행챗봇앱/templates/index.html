@@ -3,91 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <title>여행지 추천 챗봇</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://cdn.jsdelivr.net/gh/webfontworld/gmarket/GmarketSans.css');
-
         body {
-            font-family: 'GmarketSansMedium', 'Arial', '맑은 고딕', sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-            height: 100vh;
+            font-family: 'Gmarket Sans', 'Arial', '맑은 고딕', sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            color: #222;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            min-height: 100vh;
         }
         .container {
-            background-color: #ffffff;
-            border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 20px;
-            width: 90vw;
-            height: 90vh;
+            max-width: 1100px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
             display: flex;
             flex-direction: row;
-            gap: 20px;
+            gap: 32px;
+            padding: 32px 24px;
+            min-height: 80vh;
+        }
+        @media (max-width: 900px) {
+            .container { flex-direction: column; padding: 16px 4vw; }
         }
         .chat-section {
             flex: 3;
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
         .chat-title {
-            font-size: 2.5em;
-            color: #2c3e50;
-            text-align: center;
-            margin-bottom: 10px;
+            font-size: 2.2em;
+            color: #0097a7;
+            font-weight: 700;
+            text-align: left;
+            margin-bottom: 18px;
+            letter-spacing: -1px;
         }
         .chat-container {
-            background-color: #ecf0f1;
-            border-radius: 10px;
-            padding: 10px;
+            background: #f7fafc;
+            border-radius: 14px;
+            padding: 18px 14px 90px 14px;
             flex: 1;
             overflow-y: auto;
+            min-height: 350px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         .user-message, .chatbot-message {
-            display: inline-block;
-            padding: 10px 15px;
-            border-radius: 15px;
-            margin: 5px 0;
-            max-width: 80%;
+            display: block;
+            padding: 14px 20px;
+            border-radius: 18px;
+            margin: 12px 0;
+            min-width: 80px;
+            width: fit-content;
             position: relative;
-            word-wrap: break-word;
-            font-size: 1.1em;
+            word-break: break-word;
+            white-space: pre-line;
+            font-size: 1.13em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            line-height: 1.7;
         }
         .user-message {
-            background-color: #3498db;
-            color: white;
-            float: right;
-            clear: both;
+            background: linear-gradient(90deg, #4fc3f7 0%, #0097a7 100%);
+            color: #fff;
+            margin-left: auto;
+            text-align: right;
+            max-width: 40%;
         }
         .user-message::after {
             content: "";
             position: absolute;
-            top: 10px;
-            right: -10px;
+            top: 18px;
+            right: -12px;
             border-top: 10px solid transparent;
-            border-left: 10px solid #3498db;
+            border-left: 12px solid #0097a7;
             border-bottom: 10px solid transparent;
         }
         .chatbot-message {
-            background-color: #dff9fb;
-            color: #333;
-            float: left;
-            clear: both;
+            background: linear-gradient(90deg, #e0f7fa 0%, #b2ebf2 100%);
+            color: #222;
+            margin-right: auto;
+            text-align: left;
+            max-width: 80%;
         }
         .chatbot-message::before {
             content: "";
             position: absolute;
-            top: 10px;
-            left: -10px;
+            top: 18px;
+            left: -12px;
             border-top: 10px solid transparent;
-            border-right: 10px solid #dff9fb;
+            border-right: 12px solid #b2ebf2;
             border-bottom: 10px solid transparent;
         }
         .chatbot-avatar {
-            font-size: 1.2em;
-            margin-right: 5px;
+            font-size: 1.3em;
+            margin-right: 7px;
             vertical-align: middle;
         }
         .typing {
@@ -100,11 +112,9 @@
             50% { opacity: 0; }
             100% { opacity: 1; }
         }
-
-        /* 🔥 로딩 애니메이션 */
         .loader {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
+            border-top: 4px solid #0097a7;
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -116,74 +126,133 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         .filter-section {
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            background-color: #f8f9fa;
-            border-radius: 10px;
-            padding: 10px;
+            gap: 18px;
+            background: #e0f7fa;
+            border-radius: 14px;
+            padding: 24px 18px 18px 18px;
+            min-width: 260px;
+            max-width: 340px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            align-self: flex-start;
         }
-        select, input[type="text"], button {
-            padding: 15px;
-            font-size: 1.2em;
+        .filter-section label {
+            font-weight: 600;
+            color: #0097a7;
+            margin-bottom: 4px;
+        }
+        select, input[type="text"] {
+            padding: 13px;
+            font-size: 1.1em;
             border-radius: 8px;
-            border: 1px solid #ccc;
+            border: 1px solid #b2ebf2;
             width: 100%;
+            margin-bottom: 8px;
+            background: #fff;
+            transition: border 0.2s;
+        }
+        select:focus, input[type="text"]:focus {
+            border: 1.5px solid #0097a7;
+            outline: none;
         }
         button {
-            background-color: #3498db;
-            color: white;
+            background: linear-gradient(90deg, #4fc3f7 0%, #0097a7 100%);
+            color: #fff;
+            font-weight: 700;
+            padding: 14px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: none;
             cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
         }
         button:hover {
-            background-color: #2980b9;
+            background: linear-gradient(90deg, #0097a7 0%, #4fc3f7 100%);
         }
+        @media (max-width: 700px) {
+            .container { flex-direction: column; padding: 4vw 2vw; }
+            .filter-section { max-width: 100%; min-width: 0; }
+            .user-message { max-width: 80%; }
+            .chatbot-message { max-width: 100%; }
+        }
+        /* 입력창 고정 */
+        .chat-section { position: relative; }
+        form {
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            background: #fff;
+            border-radius: 0 0 14px 14px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.04);
+            padding: 18px 14px 10px 14px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        form label, .filter-section label { margin-bottom: 0; }
+        form select, form input[type="text"] {
+            margin-bottom: 0;
+            flex: 1;
+        }
+        form button { margin-top: 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="chat-section">
-            <div class="chat-title">🏝 물어봐! 서울 가보고 싶은데 있어?? 😎</div>
+            <div class="chat-title">🌏 여행지 추천 챗봇</div>
             <div class="chat-container" id="chat-box">
                 {% for q, a in chat_history %}
-                    <div class="user-message">{{ q }}</div><br>
-                    <div class="chatbot-message"><span class="chatbot-avatar">🤖</span> {{ a|safe }}</div><br>
+                    <div class="user-message">{{ q }}</div>
+                    <div class="chatbot-message"><span class="chatbot-avatar">🤖</span> {{ a|safe }}</div>
                 {% endfor %}
 
                 {% if typing %}
                     <div class="chatbot-message">
                         <span class="chatbot-avatar">🤖</span> 추천할 장소를 찾고 있어요! 
                         <span class="loader"></span>
-                    </div><br>
+                    </div>
                 {% endif %}
             </div>
-        </div>
-
-        <div class="filter-section">
             <form method="POST">
                 {% csrf_token %}
-                <label>🌍 지역:</label>
-                <select name="region">
-                    <option value="서울" {% if region == "서울" %}selected{% endif %}>서울</option>
-                    <option value="부산" {% if region == "부산" %}selected{% endif %}>부산</option>
+                <select name="location">
+                    {% for loc in location_list %}
+                        <option value="{{ loc }}" {% if location == loc %}selected{% endif %}>{{ loc }}</option>
+                    {% endfor %}
                 </select>
-
-                <label>🗂 카테고리:</label>
                 <select name="category">
-                    <option value="쇼핑" {% if category == "쇼핑" %}selected{% endif %}>쇼핑</option>
-                    <option value="카페" {% if category == "카페" %}selected{% endif %}>카페</option>
-                    <option value="문화시설" {% if category == "문화시설" %}selected{% endif %}>문화시설</option>
+                    {% for cat in category_list %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
                 </select>
-
                 <input type="text" name="question" placeholder="예: 서울에서 볼거리 추천해줘!" required>
-                <button type="submit">🤔 질문하기</button>
+                <button type="submit">질문하기</button>
             </form>
         </div>
+        <div class="filter-section">
+            <div style="font-size:1.1em; font-weight:600; color:#0097a7; margin-bottom:10px;">🔎 원하는 조건을 선택하세요</div>
+            <label>🌍 지역</label>
+            <select name="location" form="location-form">
+                {% for loc in location_list %}
+                    <option value="{{ loc }}" {% if location == loc %}selected{% endif %}>{{ loc }}</option>
+                {% endfor %}
+            </select>
+            <label>🗂 카테고리</label>
+            <select name="category" form="location-form">
+                {% for cat in category_list %}
+                    <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+            <div style="margin-top:18px; color:#555; font-size:0.98em;">
+                예시 질문<br>
+                <span style="color:#0097a7;">- 서울에서 볼거리 추천해줘!<br>- 부산의 카페 알려줘<br>- 쇼핑하기 좋은 곳?</span>
+            </div>
+        </div>
     </div>
-
     <script>
         var chatBox = document.getElementById("chat-box");
         chatBox.scrollTop = chatBox.scrollHeight;
