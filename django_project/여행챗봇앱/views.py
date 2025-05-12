@@ -140,7 +140,7 @@ def chatbot_view(request):
 
             results = collection.query(
                 query_embeddings=query_embedding,
-                n_results=10,
+                n_results=20,
                 where=filters
             )
 
@@ -156,6 +156,24 @@ def chatbot_view(request):
                     place_name = meta['name']
                     if place_name not in unique_places:
                         unique_places[place_name] = (doc, meta)
+
+                selected_places = list(unique_places.items())[:5]
+
+                if len(selected_places) < 3:
+                    answer = "추천할 만한 장소가 충분히 검색되지 않았어요. 다른 조건으로 다시 시도해 주세요!"
+                    chat_history.append((user_question, answer))
+                    request.session['chat_history'] = chat_history
+                    typing = False
+                    return render(request, "index.html", {
+                        "answer": answer,
+                        "user_question": user_question,
+                        "location": location,
+                        "category": category,
+                        "chat_history": chat_history,
+                        "typing": typing,
+                        "location_list": all_locations,
+                        "category_list": all_categories,
+                    })
 
                 for place_name, (doc, meta) in list(unique_places.items())[:5]:
                     review_text = ""
