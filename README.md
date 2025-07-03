@@ -49,11 +49,11 @@ django_project/
 
 1. **프로젝트 세팅**
    ```bash
-   git clone <레포주소>
-   cd <프로젝트폴더>
-   python -m venv .venv
-   source .venv/bin/activate
-   pip install -r requirements.txt
+git clone <레포주소>
+cd <프로젝트폴더>
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
    ```
 
 2. **환경 변수 구성**
@@ -64,7 +64,7 @@ django_project/
 
 4. **서버 실행**
    ```bash
-   python manage.py runserver
+python manage.py runserver
    ```
 
 ---
@@ -73,7 +73,7 @@ django_project/
 자연어 질문 → 여행지 추천
 
 - 사용자가 입력:  
-  `"서울에서 볼거리 추천해줘!"`
+  "서울에서 볼거리 추천해줘!"
 - 지역 / 카테고리 필터 설정 
 ` 서울 / 문화시설 `
 - 챗봇이 질문을 이해하고  
@@ -120,3 +120,5 @@ TripAdvisor 리뷰 요약 강조
 
 # 감사합니다 🙌  
 질문 있으신가요?
+
+#test
